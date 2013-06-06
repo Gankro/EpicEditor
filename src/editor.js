@@ -1603,7 +1603,85 @@
     // Otherwise a handler and event exist, so take care of it
     this.events[ev].splice(this.events[ev].indexOf(handler), 1);
     return self;
-  }
+  };
+
+  EpicEditor.prototype._getSelection = function () {
+    return this.editorIframeDocument.getSelection();
+  };
+
+  EpicEditor.prototype.prependSelection = function (text, selectAddition) {
+    /*(var selection = this._getSelection();
+    var range = selection.getRangeAt(0);
+    var rangeNode = range.endContainer;
+    var rangeOffset = range.endOffset;
+    var textNode = document.createTextNode(text);
+    range.insertNode(textNode);
+    range = this._getSelection().getRangeAt(0);
+    if (selectAddition) {
+      range.setStartBefore(textNode);
+    }
+    else {
+      range.setStartAfter(textNode);
+    }*/
+    this.replaceSelection(text + this.getSelectedText(), true);
+    if (!selectAddition) {
+      var selection = this._getSelection();
+      var range = selection.getRangeAt(0);
+      selection.collapseToEnd();
+      selection.extend(range.startContainer, range.startOffset + text.length);
+    }
+  };
+
+  EpicEditor.prototype.appendSelection = function (text, selectAddition) {
+    /*var selection = this._getSelection();
+    var range = selection.getRangeAt(0);
+    var textNode = document.createTextNode(text);
+    var tempRange = document.createRange();
+    tempRange.setStart(range.endContainer, range.endOffset);
+    tempRange.setEnd(range.endContainer, range.endOffset);
+    tempRange.insertNode(textNode);
+    range = this._getSelection().getRangeAt(0);
+    if (selectAddition) {
+      range.setEndAfter(textNode);
+    }
+    else {
+      range.setEndBefore(textNode);
+    }*/
+    this.replaceSelection(this.getSelectedText() + text, true);
+    if (!selectAddition) {
+      var selection = this._getSelection();
+      var range = selection.getRangeAt(0);
+      selection.extend(range.endContainer, range.endOffset - text.length);
+    }
+
+  };
+
+  EpicEditor.prototype.wrapSelection = function (startText, endText, selectAddition) {
+    this.appendSelection(endText || startText, selectAddition);
+    this.prependSelection(startText, selectAddition);
+  };
+
+  EpicEditor.prototype.getSelectedText = function () {
+    return this._getSelection().toString();
+  };
+
+  EpicEditor.prototype.replaceSelection = function (text, selectAddition) {
+    var selection = this._getSelection();
+    selection.deleteFromDocument();
+    var range = selection.getRangeAt(0);
+    var textNode = document.createTextNode(text);
+    range.insertNode(textNode);
+    range = this._getSelection().getRangeAt(0);
+    if (selectAddition) {
+      selection.collapseToStart();
+      selection.extend(textNode, text.length);
+    }
+    else {
+      selection.collapseToStart();
+      selection.extend(textNode, text.length);
+      selection.collapseToEnd();
+    }
+  };
 
   EpicEditor.version = '@VERSION';
 
