@@ -1779,6 +1779,7 @@
         el = this.getElement('previewer').documentElement;
       }
 
+      el.offsetWidth; //getting this value forces a reflow in many browsers
       editorHeight = _outerHeight(el);
       newHeight = editorHeight;
 
